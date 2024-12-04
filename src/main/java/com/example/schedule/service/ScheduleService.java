@@ -3,7 +3,6 @@ package com.example.schedule.service;
 
 import com.example.schedule.dto.RequestDto;
 import com.example.schedule.dto.ResponseDto;
-import com.example.schedule.entity.Schedule;
 
 import java.time.LocalDateTime;
 import java.util.List;
