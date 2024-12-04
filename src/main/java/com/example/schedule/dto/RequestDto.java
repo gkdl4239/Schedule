@@ -13,7 +13,7 @@ public class RequestDto {
     private String password;
     private String period;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime startDate = LocalDateTime.now();
+    private LocalDateTime startDate;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime endDate = LocalDateTime.now();
+    private LocalDateTime endDate;
 }
