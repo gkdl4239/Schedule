@@ -100,7 +100,7 @@ public class ScheduleRepositoryImpl implements  ScheduleRepository{
 
     private RowMapper<ResponseDto> scheduleRowMapper()  {
 
-        return new RowMapper<ResponseDto>() {
+        return new RowMapper<>() {
             @Override
             public ResponseDto mapRow(ResultSet rs, int rowNum) throws SQLException {
                 return new ResponseDto(
@@ -115,7 +115,7 @@ public class ScheduleRepositoryImpl implements  ScheduleRepository{
 
     private RowMapper<Schedule> scheduleRowMapperV2() {
 
-        return new RowMapper<Schedule>() {
+        return new RowMapper<>() {
             @Override
             public Schedule mapRow(ResultSet rs, int rowNum) throws SQLException {
                 return new Schedule(
