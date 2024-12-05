@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 public class RequestDto {
     private String toDo;
     private String name;
+    private String email;
     private String password;
     private String period;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
