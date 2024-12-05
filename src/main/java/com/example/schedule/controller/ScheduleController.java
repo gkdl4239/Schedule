@@ -27,7 +27,7 @@ public class ScheduleController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ResponseDto>> findAllSchedule(@RequestBody RequestDto dto){
+    public ResponseEntity<List<ResponseDto>> findAllScheduleByAuthorId(@RequestBody RequestDto dto){
         return new ResponseEntity<>(scheduleService.findAllSchedule(dto.getName(),dto.getPeriod(),dto.getStartDate(),dto.getEndDate()), HttpStatus.OK);
     }
 
