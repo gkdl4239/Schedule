@@ -3,6 +3,7 @@ package com.example.schedule.service;
 
 import com.example.schedule.dto.RequestDto;
 import com.example.schedule.dto.ResponseDto;
+import com.example.schedule.entity.Author;
 import com.example.schedule.entity.Schedule;
 import com.example.schedule.repository.ScheduleRepository;
 import org.springframework.http.HttpStatus;
@@ -25,22 +26,22 @@ public class ScheduleServiceImpl implements ScheduleService{
     @Override
     public ResponseDto saveSchedule(RequestDto dto) {
 
-        Schedule schedule = new Schedule(dto.getName(),dto.getToDo(),dto.getPassword());
+        Schedule schedule = new Schedule(dto.getToDo(),dto.getPassword());
+        Author author = new Author(dto.getName(),dto.getEmail());
 
-        return scheduleRepository.saveSchedule(schedule);
+        return scheduleRepository.saveSchedule(schedule,author);
     }
 
 
 
     @Override
     public List<ResponseDto> findAllSchedule(String name,String period, LocalDateTime startDate,LocalDateTime endDate) {
-        return scheduleRepository.findAllSchedule(name,period,startDate,endDate);
+        return scheduleRepository.findAllScheduleByAuthorId(name,period,startDate,endDate);
     }
 
     @Override
     public ResponseDto findScheduleById(Long id) {
-        Schedule schedule = scheduleRepository.findScheduleById(id);
-        return new ResponseDto(schedule);
+        return scheduleRepository.findScheduleById(id);
     }
 
     @Transactional
@@ -58,8 +59,9 @@ public class ScheduleServiceImpl implements ScheduleService{
         }
 
 
-        Schedule schedule = scheduleRepository.findScheduleById(id);
-        return new ResponseDto(schedule);
+//        Schedule schedule = scheduleRepository.findScheduleById(id);
+//        return new ResponseDto(schedule);
+        return null;
     }
 
     @Override
