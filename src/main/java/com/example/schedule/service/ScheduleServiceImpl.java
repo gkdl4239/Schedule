@@ -36,7 +36,23 @@ public class ScheduleServiceImpl implements ScheduleService{
 
     @Override
     public List<ResponseDto> findAllSchedule(String name, String email, String period, LocalDateTime startDate,LocalDateTime endDate) {
-        return scheduleRepository.findAllScheduleByAuthorId(name,period,email,startDate,endDate);
+        if (!"custom".equals(period) && period != null) {
+            LocalDateTime now = LocalDateTime.now();
+            endDate = now;
+            switch (period) {
+                case "1hour" -> startDate = now.minusHours(1);
+                case "1day" -> startDate = now.minusDays(1);
+                case "1week" -> startDate = now.minusWeeks(1);
+                case "1month" -> startDate = now.minusMonths(1);
+                case "3months" -> startDate = now.minusMonths(3);
+                case "6months" -> startDate = now.minusMonths(6);
+                case "1year" -> startDate = now.minusYears(1);
+                default -> throw new IllegalArgumentException("Invalid period: " + period);
+            }
+        } else if (startDate != null && endDate != null){
+            endDate = endDate.plusDays(1);
+        }
+        return scheduleRepository.findAllScheduleByAuthorId(name,email,period,startDate,endDate);
     }
 
     @Override
@@ -48,8 +64,8 @@ public class ScheduleServiceImpl implements ScheduleService{
     @Override
     public ResponseDto updateToDoAndName(Long id, String name, String toDo, String password) {
 
-        if(name == null || toDo == null){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"Both of name and todo  are required");
+        if(name == null && toDo == null){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"At least one field is required");
         }
 
         int updatedRow = scheduleRepository.updateToDoAndName(id,name,toDo,password);
