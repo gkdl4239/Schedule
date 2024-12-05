@@ -10,7 +10,6 @@ public class Schedule {
     private Long id;
     private String toDo;
     private String password;
-    private LocalDateTime createdDate;
     private LocalDateTime modifiedDate;
 
     public Schedule(String toDo, String password) {
