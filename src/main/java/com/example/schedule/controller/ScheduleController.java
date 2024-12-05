@@ -1,7 +1,7 @@
 package com.example.schedule.controller;
 
-import com.example.schedule.dto.RequestDto;
-import com.example.schedule.dto.ResponseDto;
+import com.example.schedule.dto.ScheduleRequestDto;
+import com.example.schedule.dto.ScheduleResponseDto;
 import com.example.schedule.service.ScheduleService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,25 +21,25 @@ public class ScheduleController {
 
 
     @PostMapping
-    public ResponseEntity<ResponseDto> createSchedule(@RequestBody RequestDto dto){
+    public ResponseEntity<ScheduleResponseDto> createSchedule(@RequestBody ScheduleRequestDto dto){
 
         return new ResponseEntity<>(scheduleService.saveSchedule(dto),HttpStatus.CREATED);
     }
 
     @GetMapping
-    public ResponseEntity<List<ResponseDto>> findAllScheduleByAuthorId(@RequestBody RequestDto dto){
+    public ResponseEntity<List<ScheduleResponseDto>> findAllScheduleByAuthorId(@RequestBody ScheduleRequestDto dto){
         return new ResponseEntity<>(scheduleService.findAllSchedule(dto.getName(),dto.getEmail(),dto.getPeriod(),dto.getStartDate(),dto.getEndDate()), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ResponseDto> findScheduleById(@PathVariable Long id) {
+    public ResponseEntity<ScheduleResponseDto> findScheduleById(@PathVariable Long id) {
         return new ResponseEntity<>(scheduleService.findScheduleById(id),HttpStatus.OK);
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<ResponseDto> updateToDoAndName(
+    public ResponseEntity<ScheduleResponseDto> updateToDoAndName(
             @PathVariable Long id,
-            @RequestBody RequestDto dto
+            @RequestBody ScheduleRequestDto dto
     ) {
         return new ResponseEntity<>(scheduleService.updateToDoAndName(id,dto.getName(),dto.getToDo(),dto.getPassword()),HttpStatus.OK);
     }
@@ -47,7 +47,7 @@ public class ScheduleController {
     @DeleteMapping("/{id}")
     public void deleteSchedule(
             @PathVariable Long id,
-            @RequestBody RequestDto dto
+            @RequestBody ScheduleRequestDto dto
     ){
         scheduleService.deleteSchedule(id,dto.getPassword());
     }

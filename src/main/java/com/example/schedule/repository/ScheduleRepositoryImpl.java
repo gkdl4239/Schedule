@@ -1,6 +1,6 @@
 package com.example.schedule.repository;
 
-import com.example.schedule.dto.ResponseDto;
+import com.example.schedule.dto.ScheduleResponseDto;
 import com.example.schedule.entity.Author;
 import com.example.schedule.entity.Schedule;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -31,7 +31,7 @@ public class ScheduleRepositoryImpl implements  ScheduleRepository {
     }
 
     @Override
-    public ResponseDto saveSchedule(Schedule schedule, Author author) {
+    public ScheduleResponseDto saveSchedule(Schedule schedule, Author author) {
 
         String checkAuthor = "SELECT id FROM author WHERE name = ? AND email = ?";
         Long authorId;
@@ -65,11 +65,11 @@ public class ScheduleRepositoryImpl implements  ScheduleRepository {
 
         Number key = jdbcInsert.executeAndReturnKey(new MapSqlParameterSource(parameters));
 
-        return new ResponseDto(key.longValue(), schedule.getToDo(), author.getName(), LocalDateTime.now());
+        return new ScheduleResponseDto(key.longValue(), schedule.getToDo(), author.getName(), LocalDateTime.now());
     }
 
     @Override
-    public List<ResponseDto> findAllScheduleByAuthorId(String name, String email, String period, LocalDateTime startDate, LocalDateTime endDate) {
+    public List<ScheduleResponseDto> findAllScheduleByAuthorId(String name, String email, String period, LocalDateTime startDate, LocalDateTime endDate) {
 
 
         StringBuilder sql = new StringBuilder("SELECT s.id, s.toDo, s.modifiedDate, a.name, a.email " +
@@ -100,10 +100,10 @@ public class ScheduleRepositoryImpl implements  ScheduleRepository {
     }
 
     @Override
-    public ResponseDto findScheduleById(Long id) {
+    public ScheduleResponseDto findScheduleById(Long id) {
 
         String sql = "SELECT * FROM schedule AS s JOIN author as a ON s.author_id = a.id WHERE s.id = ?";
-        List<ResponseDto> result = jdbcTemplate.query(sql, scheduleRowMapper(), id);
+        List<ScheduleResponseDto> result = jdbcTemplate.query(sql, scheduleRowMapper(), id);
         return result
                 .stream()
                 .findAny()
@@ -138,12 +138,12 @@ public class ScheduleRepositoryImpl implements  ScheduleRepository {
     }
 
 
-    private RowMapper<ResponseDto> scheduleRowMapper() {
+    private RowMapper<ScheduleResponseDto> scheduleRowMapper() {
 
         return new RowMapper<>() {
             @Override
-            public ResponseDto mapRow(ResultSet rs, int rowNum) throws SQLException {
-                return new ResponseDto(
+            public ScheduleResponseDto mapRow(ResultSet rs, int rowNum) throws SQLException {
+                return new ScheduleResponseDto(
                         rs.getLong("id"),
                         rs.getString("toDo"),
                         rs.getString("name"),

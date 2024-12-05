@@ -1,8 +1,8 @@
 package com.example.schedule.service;
 
 
-import com.example.schedule.dto.RequestDto;
-import com.example.schedule.dto.ResponseDto;
+import com.example.schedule.dto.ScheduleRequestDto;
+import com.example.schedule.dto.ScheduleResponseDto;
 import com.example.schedule.entity.Author;
 import com.example.schedule.entity.Schedule;
 import com.example.schedule.repository.ScheduleRepository;
@@ -24,7 +24,7 @@ public class ScheduleServiceImpl implements ScheduleService{
     }
 
     @Override
-    public ResponseDto saveSchedule(RequestDto dto) {
+    public ScheduleResponseDto saveSchedule(ScheduleRequestDto dto) {
 
         Schedule schedule = new Schedule(dto.getToDo(),dto.getPassword());
         Author author = new Author(dto.getName(),dto.getEmail());
@@ -35,7 +35,7 @@ public class ScheduleServiceImpl implements ScheduleService{
 
 
     @Override
-    public List<ResponseDto> findAllSchedule(String name, String email, String period, LocalDateTime startDate,LocalDateTime endDate) {
+    public List<ScheduleResponseDto> findAllSchedule(String name, String email, String period, LocalDateTime startDate, LocalDateTime endDate) {
         if (!"custom".equals(period) && period != null) {
             LocalDateTime now = LocalDateTime.now();
             endDate = now;
@@ -56,13 +56,13 @@ public class ScheduleServiceImpl implements ScheduleService{
     }
 
     @Override
-    public ResponseDto findScheduleById(Long id) {
+    public ScheduleResponseDto findScheduleById(Long id) {
         return scheduleRepository.findScheduleById(id);
     }
 
     @Transactional
     @Override
-    public ResponseDto updateToDoAndName(Long id, String name, String toDo, String password) {
+    public ScheduleResponseDto updateToDoAndName(Long id, String name, String toDo, String password) {
 
         if(name == null && toDo == null){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"At least one field is required");
@@ -73,11 +73,7 @@ public class ScheduleServiceImpl implements ScheduleService{
         if(updatedRow == 0){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Does not exist id = "+id);
         }
-
-
-//        Schedule schedule = scheduleRepository.findScheduleById(id);
-//        return new ResponseDto(schedule);
-        return null;
+        return scheduleRepository.findScheduleById(id);
     }
 
     @Override

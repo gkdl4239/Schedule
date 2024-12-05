@@ -1,21 +1,21 @@
 package com.example.schedule.service;
 
 
-import com.example.schedule.dto.RequestDto;
-import com.example.schedule.dto.ResponseDto;
+import com.example.schedule.dto.ScheduleRequestDto;
+import com.example.schedule.dto.ScheduleResponseDto;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ScheduleService {
 
-    ResponseDto saveSchedule(RequestDto dto);
+    ScheduleResponseDto saveSchedule(ScheduleRequestDto dto);
 
-    List<ResponseDto> findAllSchedule(String name, String email, String period, LocalDateTime startDate,LocalDateTime endDate );
+    List<ScheduleResponseDto> findAllSchedule(String name, String email, String period, LocalDateTime startDate, LocalDateTime endDate );
 
-    ResponseDto findScheduleById(Long id);
+    ScheduleResponseDto findScheduleById(Long id);
 
-    ResponseDto updateToDoAndName(Long id, String name, String toDo, String password);
+    ScheduleResponseDto updateToDoAndName(Long id, String name, String toDo, String password);
 
     void deleteSchedule(Long id, String password);
 }

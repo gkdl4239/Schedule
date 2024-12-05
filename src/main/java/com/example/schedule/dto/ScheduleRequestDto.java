@@ -7,7 +7,7 @@ import lombok.Getter;
 import java.time.LocalDateTime;
 
 @Getter
-public class RequestDto {
+public class ScheduleRequestDto {
     private String toDo;
     private String name;
     private String email;
