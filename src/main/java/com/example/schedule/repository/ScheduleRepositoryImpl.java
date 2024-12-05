@@ -16,6 +16,7 @@ import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -70,27 +71,31 @@ public class ScheduleRepositoryImpl implements  ScheduleRepository {
     @Override
     public List<ResponseDto> findAllScheduleByAuthorId(String name, String email, String period, LocalDateTime startDate, LocalDateTime endDate) {
 
-        if (!"custom".equals(period)) {
-            LocalDateTime now = LocalDateTime.now();
-            endDate = now;
-            switch (period) {
-                case "1hour" -> startDate = now.minusHours(1);
-                case "1day" -> startDate = now.minusDays(1);
-                case "1week" -> startDate = now.minusWeeks(1);
-                case "1month" -> startDate = now.minusMonths(1);
-                case "3months" -> startDate = now.minusMonths(3);
-                case "6months" -> startDate = now.minusMonths(6);
-                case "1year" -> startDate = now.minusYears(1);
-                default -> throw new IllegalArgumentException("Invalid period: " + period);
-            }
-        } else {
-            endDate = endDate.plusDays(1);
-        }
-        String sql = "SELECT s.id, s.toDo, s.modifiedDate, a.name, a.email " +
+
+        StringBuilder sql = new StringBuilder("SELECT s.id, s.toDo, s.modifiedDate, a.name, a.email " +
                 "FROM schedule AS s JOIN author AS a " +
-                "ON s.author_id = a.id " +
-                "WHERE a.name = ? AND a.email = ? AND s.modifiedDate BETWEEN ? AND ? ORDER BY s.modifiedDate DESC";
-        return jdbcTemplate.query(sql, scheduleRowMapper(), name,email, startDate, endDate);
+                "ON s.author_id = a.id WHERE 1=1 ");
+        List<Object> params = new ArrayList<>();
+
+        if(name != null){
+            sql.append("AND a.name = ? ");
+            params.add(name);
+        }
+
+        if(email != null){
+            sql.append("AND a.email = ? ");
+            params.add(email);
+        }
+
+        if(startDate != null && endDate != null){
+            sql.append("AND s.modifiedDate BETWEEN ? AND ? ");
+            params.add(startDate);
+            params.add(endDate);
+        }
+
+        sql.append("ORDER BY s.modifiedDate DESC");
+
+        return jdbcTemplate.query(sql.toString(), scheduleRowMapper(), params.toArray());
 
     }
 
@@ -107,9 +112,18 @@ public class ScheduleRepositoryImpl implements  ScheduleRepository {
 
     @Override
     public int updateToDoAndName(Long id, String name, String toDo, String password) {
-        LocalDateTime now = LocalDateTime.now();
         if (password.equals(jdbcTemplate.queryForObject("SELECT password FROM schedule WHERE id = ?", new Object[]{id}, String.class))) {
-            return jdbcTemplate.update("UPDATE schedule SET name = ?, toDo = ?, modifiedDate = ? WHERE id = ?", name, toDo, id, now);
+            int updatedName = 0;
+            int updatedToDo = 0;
+            if(name != null){
+                int authorId = jdbcTemplate.queryForObject("SELECT author_id FROM schedule WHERE id = ?", new Object[]{id}, Integer.class);
+                updatedName = jdbcTemplate.update("UPDATE author SET name =? WHERE id = ?",name,authorId);
+            }
+
+            if (toDo != null) {
+                updatedToDo = jdbcTemplate.update("UPDATE schedule SET toDo = ? WHERE id = ?", toDo, id);
+            }
+            return updatedName > 0 || updatedToDo > 0 ? 1 : 0;
         } else {
             return 0;
         }
