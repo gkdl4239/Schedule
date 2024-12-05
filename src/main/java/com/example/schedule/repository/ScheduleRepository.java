@@ -1,6 +1,7 @@
 package com.example.schedule.repository;
 
 import com.example.schedule.dto.ResponseDto;
+import com.example.schedule.entity.Author;
 import com.example.schedule.entity.Schedule;
 
 
@@ -9,11 +10,11 @@ import java.util.List;
 
 public interface ScheduleRepository {
 
-    ResponseDto saveSchedule(Schedule schedule);
+    ResponseDto saveSchedule(Schedule schedule, Author author);
 
-    List<ResponseDto> findAllSchedule(String name,String period, LocalDateTime startDate,LocalDateTime endDate);
+    List<ResponseDto> findAllScheduleByAuthorId(String name,String period, LocalDateTime startDate,LocalDateTime endDate);
 
-    Schedule findScheduleById(Long id);
+    ResponseDto findScheduleById(Long id);
 
     int updateToDoAndName(Long id, String name, String toDo, String password);
 
