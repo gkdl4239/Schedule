@@ -89,7 +89,7 @@ public class ScheduleRepositoryImpl implements  ScheduleRepository {
         String sql = "SELECT s.id, s.toDo, s.modifiedDate, a.name, a.email " +
                 "FROM schedule AS s JOIN author AS a " +
                 "ON s.author_id = a.id " +
-                "WHERE a.name = ? AND a.email = ? AND s.modifiedDate BETWEEN ? AND ?";
+                "WHERE a.name = ? AND a.email = ? AND s.modifiedDate BETWEEN ? AND ? ORDER BY s.modifiedDate DESC";
         return jdbcTemplate.query(sql, scheduleRowMapper(), name,email, startDate, endDate);
 
     }
