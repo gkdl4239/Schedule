@@ -12,7 +12,7 @@ public interface ScheduleRepository {
 
     ResponseDto saveSchedule(Schedule schedule, Author author);
 
-    List<ResponseDto> findAllScheduleByAuthorId(String name,String period, LocalDateTime startDate,LocalDateTime endDate);
+    List<ResponseDto> findAllScheduleByAuthorId(String name, String email, String period, LocalDateTime startDate,LocalDateTime endDate);
 
     ResponseDto findScheduleById(Long id);
 

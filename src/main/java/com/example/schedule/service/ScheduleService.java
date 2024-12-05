@@ -11,7 +11,7 @@ public interface ScheduleService {
 
     ResponseDto saveSchedule(RequestDto dto);
 
-    List<ResponseDto> findAllSchedule(String name,String period, LocalDateTime startDate,LocalDateTime endDate );
+    List<ResponseDto> findAllSchedule(String name, String email, String period, LocalDateTime startDate,LocalDateTime endDate );
 
     ResponseDto findScheduleById(Long id);
 

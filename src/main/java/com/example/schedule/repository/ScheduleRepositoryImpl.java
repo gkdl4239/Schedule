@@ -68,7 +68,7 @@ public class ScheduleRepositoryImpl implements  ScheduleRepository {
     }
 
     @Override
-    public List<ResponseDto> findAllScheduleByAuthorId(String name, String period, LocalDateTime startDate, LocalDateTime endDate) {
+    public List<ResponseDto> findAllScheduleByAuthorId(String name, String email, String period, LocalDateTime startDate, LocalDateTime endDate) {
 
         if (!"custom".equals(period)) {
             LocalDateTime now = LocalDateTime.now();
