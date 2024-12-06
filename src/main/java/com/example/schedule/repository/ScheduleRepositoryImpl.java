@@ -76,7 +76,7 @@ public class ScheduleRepositoryImpl implements  ScheduleRepository {
         StringBuilder sql = new StringBuilder("""
                 SELECT s.id, s.toDo, s.modifiedDate, a.name, a.email
                 FROM schedule AS s
-                JOIN author AS a ON s.author_id = a.id WHERE 1=1
+                JOIN author AS a ON s.author_id = a.id 
                 """);
         List<Object> params = new ArrayList<>();
 
@@ -88,7 +88,9 @@ public class ScheduleRepositoryImpl implements  ScheduleRepository {
             JOIN author AS a ON s.author_id = a.id 
             """);
 
-        countSql.append(sql.substring(sql.indexOf("WHERE")));
+        if(sql.indexOf("WHERE") != -1) {
+            countSql.append(sql.substring(sql.indexOf("WHERE")));
+        }
 
         int totalElements = jdbcTemplate.queryForObject(countSql.toString(), Integer.class, params.toArray());
 
@@ -111,18 +113,27 @@ public class ScheduleRepositoryImpl implements  ScheduleRepository {
 
     private void buildWhereClause(StringBuilder sql, List<Object> params, String name, String email,
                                   LocalDateTime startDate, LocalDateTime endDate) {
+        if (name != null || email != null || endDate != null){
+            sql.append("WHERE ");
+        }
         if (name != null) {
-            sql.append("AND a.name = ? ");
+            sql.append("a.name = ? ");
             params.add(name);
         }
 
         if (email != null) {
-            sql.append("AND a.email = ? ");
+            if(name != null){
+                sql.append("OR ");
+            }
+            sql.append("a.email = ? ");
             params.add(email);
         }
 
         if (startDate != null && endDate != null) {
-            sql.append("AND s.modifiedDate BETWEEN ? AND ? ");
+            if(name != null || email != null){
+                sql.append("OR ");
+            }
+            sql.append("s.modifiedDate BETWEEN ? AND ? ");
             params.add(startDate);
             params.add(endDate);
         }
