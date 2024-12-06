@@ -1,5 +1,6 @@
 package com.example.schedule.repository;
 
+import com.example.schedule.dto.PageResponseDto;
 import com.example.schedule.dto.ScheduleResponseDto;
 import com.example.schedule.entity.Author;
 import com.example.schedule.entity.Schedule;
@@ -69,34 +70,62 @@ public class ScheduleRepositoryImpl implements  ScheduleRepository {
     }
 
     @Override
-    public List<ScheduleResponseDto> findAllScheduleByAuthorId(String name, String email, String period, LocalDateTime startDate, LocalDateTime endDate) {
+    public PageResponseDto<ScheduleResponseDto> findAllScheduleByAuthorId(String name, String email, String period, LocalDateTime startDate, LocalDateTime endDate, int size, int page) {
 
 
-        StringBuilder sql = new StringBuilder("SELECT s.id, s.toDo, s.modifiedDate, a.name, a.email " +
-                "FROM schedule AS s JOIN author AS a " +
-                "ON s.author_id = a.id WHERE 1=1 ");
+        StringBuilder sql = new StringBuilder("""
+                SELECT s.id, s.toDo, s.modifiedDate, a.name, a.email
+                FROM schedule AS s
+                JOIN author AS a ON s.author_id = a.id WHERE 1=1
+                """);
         List<Object> params = new ArrayList<>();
 
-        if(name != null){
+        buildWhereClause(sql, params, name, email, startDate, endDate);
+
+        StringBuilder countSql = new StringBuilder("""
+            SELECT COUNT(*)
+            FROM schedule AS s
+            JOIN author AS a ON s.author_id = a.id 
+            """);
+
+        countSql.append(sql.substring(sql.indexOf("WHERE")));
+
+        int totalElements = jdbcTemplate.queryForObject(countSql.toString(), Integer.class, params.toArray());
+
+        sql.append("ORDER BY s.modifiedDate DESC LIMIT ? OFFSET ?");
+        params.add(size);
+        params.add((page-1)*size);
+
+
+        List<ScheduleResponseDto> schedules = jdbcTemplate.query(sql.toString(), scheduleRowMapper(), params.toArray());
+
+
+        int totalPages = (int) Math.ceil((double) totalElements / size);
+
+        if (page > totalPages) {
+            page = Math.max(totalPages, 1); // 초과 시 마지막 페이지로 설정 (최소 1페이지 보장)
+        }
+
+        return new PageResponseDto<>(schedules,page,size,totalPages,totalElements);
+    }
+
+    private void buildWhereClause(StringBuilder sql, List<Object> params, String name, String email,
+                                  LocalDateTime startDate, LocalDateTime endDate) {
+        if (name != null) {
             sql.append("AND a.name = ? ");
             params.add(name);
         }
 
-        if(email != null){
+        if (email != null) {
             sql.append("AND a.email = ? ");
             params.add(email);
         }
 
-        if(startDate != null && endDate != null){
+        if (startDate != null && endDate != null) {
             sql.append("AND s.modifiedDate BETWEEN ? AND ? ");
             params.add(startDate);
             params.add(endDate);
         }
-
-        sql.append("ORDER BY s.modifiedDate DESC");
-
-        return jdbcTemplate.query(sql.toString(), scheduleRowMapper(), params.toArray());
-
     }
 
     @Override
