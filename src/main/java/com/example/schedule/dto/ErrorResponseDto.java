@@ -6,9 +6,9 @@ import java.time.LocalDateTime;
 
 @Getter
 public class ErrorResponseDto {
-    private String message;
-    private int status;
-    private LocalDateTime timestamp;
+    private final String message;
+    private final int status;
+    private final LocalDateTime timestamp;
 
     public ErrorResponseDto(String message, int status, LocalDateTime timestamp){
         this.message = message;
