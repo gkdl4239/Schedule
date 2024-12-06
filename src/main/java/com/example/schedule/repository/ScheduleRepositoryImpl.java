@@ -5,6 +5,7 @@ import com.example.schedule.dto.ScheduleResponseDto;
 import com.example.schedule.entity.Author;
 import com.example.schedule.entity.Schedule;
 import com.example.schedule.exception.BadRequestException;
+import com.example.schedule.exception.NotFoundException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -39,8 +40,6 @@ public class ScheduleRepositoryImpl implements  ScheduleRepository {
         String email = author.getEmail();
         String toDo = schedule.getToDo();
         String password = schedule.getPassword();
-
-
 
         String checkAuthor = "SELECT id FROM author WHERE name = ? AND email = ?";
         Long authorId;
@@ -116,7 +115,7 @@ public class ScheduleRepositoryImpl implements  ScheduleRepository {
         int totalPages = (int) Math.ceil((double) totalElements / size);
 
         if (page > totalPages) {
-            page = Math.max(totalPages, 1); // 초과 시 마지막 페이지로 설정 (최소 1페이지 보장)
+            page = Math.max(totalPages, 1);
         }
 
         return new PageResponseDto<>(schedules,page,size,totalPages,totalElements);
@@ -145,11 +144,7 @@ public class ScheduleRepositoryImpl implements  ScheduleRepository {
     @Override
     public ScheduleResponseDto findScheduleById(Long id) {
 
-        int count = isValidInTable(id);
-
-        if(count == 0){
-            throw new BadRequestException("존재하지 않는 글입니다 !");
-        }
+        isValidInTable(id);
 
         String sql = "SELECT * FROM schedule AS s JOIN author as a ON s.author_id = a.id WHERE s.id = ?";
         List<ScheduleResponseDto> result = jdbcTemplate.query(sql, scheduleRowMapper(), id);
@@ -162,11 +157,7 @@ public class ScheduleRepositoryImpl implements  ScheduleRepository {
     @Override
     public void updateToDoAndName(Long id, String name, String toDo, String password) {
 
-        int count = isValidInTable(id);
-
-        if (count ==0){
-            throw new BadRequestException("존재하지 않는 글입니다 !");
-        }
+        isValidInTable(id);
 
         if (password.equals(searchPassword(id))) {
 
@@ -186,11 +177,7 @@ public class ScheduleRepositoryImpl implements  ScheduleRepository {
     @Override
     public void deleteSchedule(Long id, String password) {
 
-        int count = isValidInTable(id);
-
-        if (count == 0) {
-            throw new BadRequestException("존재 하지 않는 글 입니다 !");
-        }
+        isValidInTable(id);
 
         if (password.equals(searchPassword(id))) {
             jdbcTemplate.update("DELETE FROM schedule WHERE id = ? AND password = ?", id, password);
@@ -199,8 +186,14 @@ public class ScheduleRepositoryImpl implements  ScheduleRepository {
         throw new BadRequestException("비밀번호가 올바르지 않습니다 !");
     }
 
-    private int isValidInTable(Long id){
-        return jdbcTemplate.queryForObject("SELECT COUNT(*) FROM schedule WHERE id = ?", new Object[]{id}, Integer.class);
+    private void isValidInTable(Long id){
+
+        Integer count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM schedule WHERE id = ?", new Object[]{id}, Integer.class);
+
+        if (count == null || count == 0) {
+            throw new NotFoundException("존재 하지 않는 글 입니다 !");
+        }
+
     }
 
     private String searchPassword(Long id){
