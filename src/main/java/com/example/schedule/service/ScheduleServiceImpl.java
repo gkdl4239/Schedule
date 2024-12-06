@@ -6,6 +6,8 @@ import com.example.schedule.dto.ScheduleRequestDto;
 import com.example.schedule.dto.ScheduleResponseDto;
 import com.example.schedule.entity.Author;
 import com.example.schedule.entity.Schedule;
+import com.example.schedule.exception.BadRequestException;
+import com.example.schedule.exception.NotFoundException;
 import com.example.schedule.repository.ScheduleRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -13,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Service
 public class ScheduleServiceImpl implements ScheduleService{
@@ -27,8 +28,18 @@ public class ScheduleServiceImpl implements ScheduleService{
     @Override
     public ScheduleResponseDto saveSchedule(ScheduleRequestDto dto) {
 
+
         Schedule schedule = new Schedule(dto.getToDo(),dto.getPassword());
         Author author = new Author(dto.getName(),dto.getEmail());
+
+        String name = author.getName();
+        String email = author.getEmail();
+        String toDo = schedule.getToDo();
+        String password = schedule.getPassword();
+
+        if(name == null | email == null || toDo == null || password == null){
+            throw new BadRequestException("작성자, 이메일, 할일, 비밀번호를 모두 입력 해 주세요");
+        }
 
         return scheduleRepository.saveSchedule(schedule,author);
     }
@@ -36,8 +47,11 @@ public class ScheduleServiceImpl implements ScheduleService{
 
 
     @Override
-    public PageResponseDto<ScheduleResponseDto> findAllSchedule(String name, String email, String period, LocalDateTime startDate, LocalDateTime endDate, int size, int page) {
+    public PageResponseDto<ScheduleResponseDto> findAllSchedule(Long id, String period, LocalDateTime startDate, LocalDateTime endDate, int size, int page) {
 
+        if(page<=0 || size<=0){
+            throw new BadRequestException("페이지와 사이즈는 1 이상이어야 합니다");
+        }
 
 
         if (!"custom".equals(period) && period != null) {
@@ -55,10 +69,12 @@ public class ScheduleServiceImpl implements ScheduleService{
             }
         } else if (startDate != null && endDate != null){
             endDate = endDate.plusDays(1);
+        } else if (startDate != null){
+            endDate = LocalDateTime.now().plusDays(1);
         }
 
 
-        return scheduleRepository.findAllScheduleByAuthorId(name,email,period,startDate,endDate, size, page);
+        return scheduleRepository.findAllScheduleByAuthorId(id,period,startDate,endDate, size, page);
     }
 
     @Override
@@ -71,24 +87,15 @@ public class ScheduleServiceImpl implements ScheduleService{
     public ScheduleResponseDto updateToDoAndName(Long id, String name, String toDo, String password) {
 
         if(name == null && toDo == null){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"At least one field is required");
+            throw new BadRequestException("이름이나 할일을 적어도 1개 기입하세요");
         }
-
-        int updatedRow = scheduleRepository.updateToDoAndName(id,name,toDo,password);
-
-        if(updatedRow == 0){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"Does not exist id = "+id);
-        }
+        scheduleRepository.updateToDoAndName(id, name, toDo, password);
         return scheduleRepository.findScheduleById(id);
     }
 
     @Override
     public void deleteSchedule(Long id, String password) {
 
-        int deletedRow = scheduleRepository.deleteSchedule(id, password);
-
-        if(deletedRow == 0){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        }
+        scheduleRepository.deleteSchedule(id, password);
     }
 }
