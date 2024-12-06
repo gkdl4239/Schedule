@@ -1,5 +1,6 @@
 package com.example.schedule.repository;
 
+import com.example.schedule.dto.PageResponseDto;
 import com.example.schedule.dto.ScheduleResponseDto;
 import com.example.schedule.entity.Author;
 import com.example.schedule.entity.Schedule;
@@ -12,7 +13,7 @@ public interface ScheduleRepository {
 
     ScheduleResponseDto saveSchedule(Schedule schedule, Author author);
 
-    List<ScheduleResponseDto> findAllScheduleByAuthorId(String name, String email, String period, LocalDateTime startDate, LocalDateTime endDate);
+    PageResponseDto<ScheduleResponseDto> findAllScheduleByAuthorId(String name, String email, String period, LocalDateTime startDate, LocalDateTime endDate, int size, int page);
 
     ScheduleResponseDto findScheduleById(Long id);
 
