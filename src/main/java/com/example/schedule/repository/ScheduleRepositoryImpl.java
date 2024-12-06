@@ -4,6 +4,7 @@ import com.example.schedule.dto.PageResponseDto;
 import com.example.schedule.dto.ScheduleResponseDto;
 import com.example.schedule.entity.Author;
 import com.example.schedule.entity.Schedule;
+import com.example.schedule.exception.BadRequestException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -34,10 +35,17 @@ public class ScheduleRepositoryImpl implements  ScheduleRepository {
     @Override
     public ScheduleResponseDto saveSchedule(Schedule schedule, Author author) {
 
+        String name = author.getName();
+        String email = author.getEmail();
+        String toDo = schedule.getToDo();
+        String password = schedule.getPassword();
+
+
+
         String checkAuthor = "SELECT id FROM author WHERE name = ? AND email = ?";
         Long authorId;
         try{
-            authorId = jdbcTemplate.queryForObject(checkAuthor,Long.class,author.getName(),author.getEmail());
+            authorId = jdbcTemplate.queryForObject(checkAuthor,Long.class,name,email);
         }
 
         catch(EmptyResultDataAccessException e){
@@ -47,8 +55,8 @@ public class ScheduleRepositoryImpl implements  ScheduleRepository {
                     .usingColumns("name","email");
 
             Map<String, Object> authorParams = new HashMap<>();
-            authorParams.put("name",author.getName());
-            authorParams.put("email",author.getEmail());
+            authorParams.put("name",name);
+            authorParams.put("email",email);
 
             Number generatedId = authorInsert.executeAndReturnKey(new MapSqlParameterSource(authorParams));
             authorId = generatedId.longValue();
@@ -60,32 +68,33 @@ public class ScheduleRepositoryImpl implements  ScheduleRepository {
                 .usingColumns("toDo","password","author_id");
 
         Map<String, Object> parameters = new HashMap<>();
-        parameters.put("toDo", schedule.getToDo());
-        parameters.put("password", schedule.getPassword());
+        parameters.put("toDo", toDo);
+        parameters.put("password", password);
         parameters.put("author_id", authorId);
 
         Number key = jdbcInsert.executeAndReturnKey(new MapSqlParameterSource(parameters));
 
-        return new ScheduleResponseDto(key.longValue(), schedule.getToDo(), author.getName(), LocalDateTime.now());
+        return new ScheduleResponseDto(key.longValue(), toDo, name, LocalDateTime.now());
     }
 
     @Override
-    public PageResponseDto<ScheduleResponseDto> findAllScheduleByAuthorId(String name, String email, String period, LocalDateTime startDate, LocalDateTime endDate, int size, int page) {
+    public PageResponseDto<ScheduleResponseDto> findAllScheduleByAuthorId(Long id, String period, LocalDateTime startDate, LocalDateTime endDate, int size, int page) {
 
 
         StringBuilder sql = new StringBuilder("""
                 SELECT s.id, s.toDo, s.modifiedDate, a.name, a.email
                 FROM schedule AS s
-                JOIN author AS a ON s.author_id = a.id 
+                JOIN author AS a ON s.author_id = a.id
                 """);
+
         List<Object> params = new ArrayList<>();
 
-        buildWhereClause(sql, params, name, email, startDate, endDate);
+        buildWhereClause(sql, params, id, startDate, endDate);
 
         StringBuilder countSql = new StringBuilder("""
             SELECT COUNT(*)
             FROM schedule AS s
-            JOIN author AS a ON s.author_id = a.id 
+            JOIN author AS a ON s.author_id = a.id
             """);
 
         if(sql.indexOf("WHERE") != -1) {
@@ -102,6 +111,8 @@ public class ScheduleRepositoryImpl implements  ScheduleRepository {
         List<ScheduleResponseDto> schedules = jdbcTemplate.query(sql.toString(), scheduleRowMapper(), params.toArray());
 
 
+
+
         int totalPages = (int) Math.ceil((double) totalElements / size);
 
         if (page > totalPages) {
@@ -111,27 +122,19 @@ public class ScheduleRepositoryImpl implements  ScheduleRepository {
         return new PageResponseDto<>(schedules,page,size,totalPages,totalElements);
     }
 
-    private void buildWhereClause(StringBuilder sql, List<Object> params, String name, String email,
+    private void buildWhereClause(StringBuilder sql, List<Object> params, Long id,
                                   LocalDateTime startDate, LocalDateTime endDate) {
-        if (name != null || email != null || endDate != null){
+        if (id != null || endDate != null){
             sql.append("WHERE ");
         }
-        if (name != null) {
-            sql.append("a.name = ? ");
-            params.add(name);
-        }
-
-        if (email != null) {
-            if(name != null){
-                sql.append("OR ");
-            }
-            sql.append("a.email = ? ");
-            params.add(email);
+        if (id != null) {
+            sql.append("s.author_id = ? ");
+            params.add(id);
         }
 
         if (startDate != null && endDate != null) {
-            if(name != null || email != null){
-                sql.append("OR ");
+            if(id !=null){
+                sql.append("AND ");
             }
             sql.append("s.modifiedDate BETWEEN ? AND ? ");
             params.add(startDate);
@@ -142,6 +145,12 @@ public class ScheduleRepositoryImpl implements  ScheduleRepository {
     @Override
     public ScheduleResponseDto findScheduleById(Long id) {
 
+        int count = isValidInTable(id);
+
+        if(count == 0){
+            throw new BadRequestException("존재하지 않는 글입니다 !");
+        }
+
         String sql = "SELECT * FROM schedule AS s JOIN author as a ON s.author_id = a.id WHERE s.id = ?";
         List<ScheduleResponseDto> result = jdbcTemplate.query(sql, scheduleRowMapper(), id);
         return result
@@ -151,30 +160,51 @@ public class ScheduleRepositoryImpl implements  ScheduleRepository {
     }
 
     @Override
-    public int updateToDoAndName(Long id, String name, String toDo, String password) {
-        if (password.equals(jdbcTemplate.queryForObject("SELECT password FROM schedule WHERE id = ?", new Object[]{id}, String.class))) {
-            int updatedName = 0;
-            int updatedToDo = 0;
+    public void updateToDoAndName(Long id, String name, String toDo, String password) {
+
+        int count = isValidInTable(id);
+
+        if (count ==0){
+            throw new BadRequestException("존재하지 않는 글입니다 !");
+        }
+
+        if (password.equals(searchPassword(id))) {
+
             if(name != null){
                 int authorId = jdbcTemplate.queryForObject("SELECT author_id FROM schedule WHERE id = ?", new Object[]{id}, Integer.class);
-                updatedName = jdbcTemplate.update("UPDATE author SET name =? WHERE id = ?",name,authorId);
+                jdbcTemplate.update("UPDATE author SET name =? WHERE id = ?",name,authorId);
             }
 
             if (toDo != null) {
-                updatedToDo = jdbcTemplate.update("UPDATE schedule SET toDo = ? WHERE id = ?", toDo, id);
+                jdbcTemplate.update("UPDATE schedule SET toDo = ? WHERE id = ?", toDo, id);
             }
-            return updatedName > 0 || updatedToDo > 0 ? 1 : 0;
-        } else {
-            return 0;
         }
+
+        throw new BadRequestException("비밀번호가 올바르지 않습니다 !");
     }
 
     @Override
-    public int deleteSchedule(Long id, String password) {
-        if (password.equals(jdbcTemplate.queryForObject("SELECT password FROM schedule WHERE id = ?", new Object[]{id}, String.class))) {
-            return jdbcTemplate.update("DELETE FROM schedule WHERE id = ? AND password = ?", id, password);
+    public void deleteSchedule(Long id, String password) {
+
+        int count = isValidInTable(id);
+
+        if (count == 0) {
+            throw new BadRequestException("존재 하지 않는 글 입니다 !");
         }
-        return 0;
+
+        if (password.equals(searchPassword(id))) {
+            jdbcTemplate.update("DELETE FROM schedule WHERE id = ? AND password = ?", id, password);
+        }
+
+        throw new BadRequestException("비밀번호가 올바르지 않습니다 !");
+    }
+
+    private int isValidInTable(Long id){
+        return jdbcTemplate.queryForObject("SELECT COUNT(*) FROM schedule WHERE id = ?", new Object[]{id}, Integer.class);
+    }
+
+    private String searchPassword(Long id){
+        return jdbcTemplate.queryForObject("SELECT password FROM schedule WHERE id = ?", new Object[]{id}, String.class);
     }
 
 
