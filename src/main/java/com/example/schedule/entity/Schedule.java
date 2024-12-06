@@ -8,18 +8,12 @@ import java.time.LocalDateTime;
 public class Schedule {
 
     private Long id;
-    private String toDo;
-    private String password;
+    private final String toDo;
+    private final String password;
     private LocalDateTime modifiedDate;
 
     public Schedule(String toDo, String password) {
         this.toDo = toDo;
         this.password = password;
-    }
-
-    public Schedule(Long id, String toDo, LocalDateTime modifiedDate) {
-        this.id = id;
-        this.toDo = toDo;
-        this.modifiedDate = modifiedDate;
     }
 }
