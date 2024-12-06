@@ -7,7 +7,6 @@ import com.example.schedule.entity.Schedule;
 
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 public interface ScheduleRepository {
 
