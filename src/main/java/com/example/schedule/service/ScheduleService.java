@@ -12,7 +12,7 @@ public interface ScheduleService {
 
     ScheduleResponseDto saveSchedule(ScheduleRequestDto dto);
 
-    PageResponseDto<ScheduleResponseDto> findAllSchedule(String name, String email, String period, LocalDateTime startDate, LocalDateTime endDate, int size, int page);
+    PageResponseDto<ScheduleResponseDto> findAllSchedule(Long id, String period, LocalDateTime startDate, LocalDateTime endDate, int size, int page);
 
     ScheduleResponseDto findScheduleById(Long id);
 
