@@ -13,11 +13,11 @@ public interface ScheduleRepository {
 
     ScheduleResponseDto saveSchedule(Schedule schedule, Author author);
 
-    PageResponseDto<ScheduleResponseDto> findAllScheduleByAuthorId(String name, String email, String period, LocalDateTime startDate, LocalDateTime endDate, int size, int page);
+    PageResponseDto<ScheduleResponseDto> findAllScheduleByAuthorId(Long id, String period, LocalDateTime startDate, LocalDateTime endDate, int size, int page);
 
     ScheduleResponseDto findScheduleById(Long id);
 
-    int updateToDoAndName(Long id, String name, String toDo, String password);
+    void updateToDoAndName(Long id, String name, String toDo, String password);
 
-    int deleteSchedule(Long id, String password);
+    void deleteSchedule(Long id, String password);
 }
