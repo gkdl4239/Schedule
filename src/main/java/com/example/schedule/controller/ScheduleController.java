@@ -1,5 +1,6 @@
 package com.example.schedule.controller;
 
+import com.example.schedule.dto.PageResponseDto;
 import com.example.schedule.dto.ScheduleRequestDto;
 import com.example.schedule.dto.ScheduleResponseDto;
 import com.example.schedule.service.ScheduleService;
@@ -27,8 +28,9 @@ public class ScheduleController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ScheduleResponseDto>> findAllScheduleByAuthorId(@RequestBody ScheduleRequestDto dto){
-        return new ResponseEntity<>(scheduleService.findAllSchedule(dto.getName(),dto.getEmail(),dto.getPeriod(),dto.getStartDate(),dto.getEndDate()), HttpStatus.OK);
+    public ResponseEntity<PageResponseDto<ScheduleResponseDto>> findAllSchedule(@RequestBody ScheduleRequestDto dto){
+        PageResponseDto<ScheduleResponseDto> result = scheduleService.findAllSchedule(dto.getName(),dto.getEmail(),dto.getPeriod(),dto.getStartDate(),dto.getEndDate(),dto.getSize(),dto.getPage());
+        return ResponseEntity.ok(result);
     }
 
     @GetMapping("/{id}")
