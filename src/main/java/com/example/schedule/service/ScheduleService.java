@@ -6,7 +6,6 @@ import com.example.schedule.dto.ScheduleRequestDto;
 import com.example.schedule.dto.ScheduleResponseDto;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 public interface ScheduleService {
 
