@@ -1,6 +1,7 @@
 package com.example.schedule.service;
 
 
+import com.example.schedule.dto.PageResponseDto;
 import com.example.schedule.dto.ScheduleRequestDto;
 import com.example.schedule.dto.ScheduleResponseDto;
 import com.example.schedule.entity.Author;
@@ -35,7 +36,10 @@ public class ScheduleServiceImpl implements ScheduleService{
 
 
     @Override
-    public List<ScheduleResponseDto> findAllSchedule(String name, String email, String period, LocalDateTime startDate, LocalDateTime endDate) {
+    public PageResponseDto<ScheduleResponseDto> findAllSchedule(String name, String email, String period, LocalDateTime startDate, LocalDateTime endDate, int size, int page) {
+
+
+
         if (!"custom".equals(period) && period != null) {
             LocalDateTime now = LocalDateTime.now();
             endDate = now;
@@ -52,7 +56,9 @@ public class ScheduleServiceImpl implements ScheduleService{
         } else if (startDate != null && endDate != null){
             endDate = endDate.plusDays(1);
         }
-        return scheduleRepository.findAllScheduleByAuthorId(name,email,period,startDate,endDate);
+
+
+        return scheduleRepository.findAllScheduleByAuthorId(name,email,period,startDate,endDate, size, page);
     }
 
     @Override
