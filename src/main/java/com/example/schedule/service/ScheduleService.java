@@ -1,6 +1,7 @@
 package com.example.schedule.service;
 
 
+import com.example.schedule.dto.PageResponseDto;
 import com.example.schedule.dto.ScheduleRequestDto;
 import com.example.schedule.dto.ScheduleResponseDto;
 
@@ -11,7 +12,7 @@ public interface ScheduleService {
 
     ScheduleResponseDto saveSchedule(ScheduleRequestDto dto);
 
-    List<ScheduleResponseDto> findAllSchedule(String name, String email, String period, LocalDateTime startDate, LocalDateTime endDate );
+    PageResponseDto<ScheduleResponseDto> findAllSchedule(String name, String email, String period, LocalDateTime startDate, LocalDateTime endDate, int size, int page);
 
     ScheduleResponseDto findScheduleById(Long id);
 
