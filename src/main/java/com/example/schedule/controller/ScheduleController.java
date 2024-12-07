@@ -31,18 +31,18 @@ public class ScheduleController {
 
     @GetMapping
     public ResponseEntity<PageResponseDto<ScheduleResponseDto>> findAllSchedule(
-            @RequestParam(required = false) Long id,
-            @RequestParam(required = false) String period,
-            @RequestParam(required = false) String startDate,
-            @RequestParam(required = false) String endDate,
-            @RequestParam(defaultValue = "5") int size,
-            @RequestParam(defaultValue = "1") int page
-    ){
+            @ModelAttribute ScheduleRequestDto dto,
+            @RequestParam String start,
+            @RequestParam String end
+    )  {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        LocalDateTime start = LocalDateTime.parse(startDate, formatter);
-        LocalDateTime end = LocalDateTime.parse(endDate, formatter);
+        LocalDateTime startDate = LocalDateTime.parse(start, formatter);
+        LocalDateTime endDate = LocalDateTime.parse(end, formatter);
 
-        PageResponseDto<ScheduleResponseDto> result = scheduleService.findAllSchedule(id, period, start, end, size, page);
+        dto.setStartDate(startDate);
+        dto.setEndDate(endDate);
+
+        PageResponseDto<ScheduleResponseDto> result = scheduleService.findAllSchedule(dto);
         return ResponseEntity.ok(result);
     }
 
