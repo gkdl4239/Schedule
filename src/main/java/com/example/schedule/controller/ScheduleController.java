@@ -9,9 +9,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-
 @RestController
 @RequestMapping("/schedules")
 public class ScheduleController {
@@ -30,19 +27,11 @@ public class ScheduleController {
     }
 
     @GetMapping
-    public ResponseEntity<PageResponseDto<ScheduleResponseDto>> findAllSchedule(
-            @ModelAttribute ScheduleRequestDto dto,
-            @RequestParam String start,
-            @RequestParam String end
+    public ResponseEntity<PageResponseDto> findAllSchedule(
+            @ModelAttribute ScheduleRequestDto dto
     ) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        LocalDateTime startDate = LocalDateTime.parse(start, formatter);
-        LocalDateTime endDate = LocalDateTime.parse(end, formatter);
 
-        dto.setStartDate(startDate);
-        dto.setEndDate(endDate);
-
-        PageResponseDto<ScheduleResponseDto> result = scheduleService.findAllSchedule(dto);
+        PageResponseDto result = scheduleService.findAllSchedule(dto);
         return ResponseEntity.ok(result);
     }
 
