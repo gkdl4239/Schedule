@@ -9,7 +9,10 @@ import com.example.schedule.repository.ScheduleRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 
 @Service
 public class ScheduleServiceImpl implements ScheduleService {
@@ -40,11 +43,35 @@ public class ScheduleServiceImpl implements ScheduleService {
         int page = dto.getPage();
         int size = dto.getSize();
         String period = dto.getPeriod();
-        LocalDateTime startDate = dto.getStartDate();
-        LocalDateTime endDate = dto.getEndDate();
+        String start = dto.getStartDate();
+        String end = dto.getEndDate();
+
+        // String 으로 받아온 시작일과 종료일 LocalDateTime으로 변환하여 사용
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDateTime startDate;
+        LocalDateTime endDate;
 
         if (page <= 0 || size <= 0) {
             throw new BadRequestException("페이지와 사이즈는 1 이상이어야 합니다");
+        }
+
+        if(!(start == null && end == null) && (start == null || end == null)){
+            throw new BadRequestException("시작일과 종료일 중 하나만 입력할 수 없습니다!");
+        }
+
+        if(start != null && period != null){
+            throw new BadRequestException("기간이나 날짜선택 중 하나만 입력하세요!");
+        }
+
+        // 시작일, 종료일 null 확인
+        if(start == null){
+            startDate = null;
+            endDate = null;
+        }
+        // 시작일 + 00:00:00 , 종료일 + 11:59:59
+        else{
+            startDate = LocalDate.parse(start, formatter).atStartOfDay();
+            endDate= LocalDate.parse(end, formatter).atTime(LocalTime.MAX);
         }
 
 
@@ -61,10 +88,6 @@ public class ScheduleServiceImpl implements ScheduleService {
                 case "1year" -> startDate = now.minusYears(1);
                 default -> throw new IllegalArgumentException("Invalid period: " + period);
             }
-        } else if (startDate != null && endDate != null) {
-            endDate = endDate.plusDays(1);
-        } else if (startDate != null) {
-            endDate = LocalDateTime.now().plusDays(1);
         }
 
 
