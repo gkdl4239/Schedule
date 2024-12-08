@@ -2,8 +2,6 @@ package com.example.schedule.repository;
 
 import com.example.schedule.dto.PageResponseDto;
 import com.example.schedule.dto.ScheduleResponseDto;
-import com.example.schedule.entity.Author;
-import com.example.schedule.entity.Schedule;
 import com.example.schedule.exception.BadRequestException;
 import com.example.schedule.exception.NotFoundException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -34,12 +32,8 @@ public class ScheduleRepositoryImpl implements  ScheduleRepository {
     }
 
     @Override
-    public ScheduleResponseDto saveSchedule(Schedule schedule, Author author) {
+    public ScheduleResponseDto saveSchedule(String name, String email, String toDo, String password) {
 
-        String name = author.getName();
-        String email = author.getEmail();
-        String toDo = schedule.getToDo();
-        String password = schedule.getPassword();
 
         String checkAuthor = "SELECT id FROM author WHERE name = ? AND email = ?";
         Long authorId;
@@ -170,7 +164,6 @@ public class ScheduleRepositoryImpl implements  ScheduleRepository {
                 jdbcTemplate.update("UPDATE schedule SET toDo = ? WHERE id = ?", toDo, id);
             }
         }
-
         throw new BadRequestException("비밀번호가 올바르지 않습니다 !");
     }
 
