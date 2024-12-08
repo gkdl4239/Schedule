@@ -5,13 +5,11 @@ import com.example.schedule.dto.ScheduleResponseDto;
 import com.example.schedule.exception.BadRequestException;
 import com.example.schedule.exception.NotFoundException;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
-import org.springframework.web.server.ResponseStatusException;
 
 import javax.sql.DataSource;
 import java.sql.ResultSet;
@@ -149,12 +147,13 @@ public class ScheduleRepositoryImpl implements ScheduleRepository {
 
         isValidInTable(id);
 
+        // 테이블을 조인하여 통합으로 필요한 응답값을 Dto에 넘겨줌
         String sql = "SELECT * FROM schedule AS s JOIN author as a ON s.author_id = a.id WHERE s.id = ?";
         List<ScheduleResponseDto> result = jdbcTemplate.query(sql, scheduleRowMapper(), id);
         return result
                 .stream()
                 .findAny()
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new NotFoundException("존재 하지 않는 글입니다 !"));
     }
 
     @Override
@@ -196,7 +195,7 @@ public class ScheduleRepositoryImpl implements ScheduleRepository {
         Integer count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM schedule WHERE id = ?", new Object[]{id}, Integer.class);
 
         if (count == null || count == 0) {
-            throw new NotFoundException("존재 하지 않는 글 입니다 !");
+            throw new NotFoundException("존재 하지 않는 글입니다 !");
         }
 
     }
