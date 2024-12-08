@@ -4,15 +4,10 @@ package com.example.schedule.service;
 import com.example.schedule.dto.PageResponseDto;
 import com.example.schedule.dto.ScheduleRequestDto;
 import com.example.schedule.dto.ScheduleResponseDto;
-import com.example.schedule.entity.Author;
-import com.example.schedule.entity.Schedule;
 import com.example.schedule.exception.BadRequestException;
-import com.example.schedule.exception.NotFoundException;
 import com.example.schedule.repository.ScheduleRepository;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 
@@ -28,26 +23,26 @@ public class ScheduleServiceImpl implements ScheduleService{
     @Override
     public ScheduleResponseDto saveSchedule(ScheduleRequestDto dto) {
 
+        String name = dto.getName();
+        String email = dto.getEmail();
+        String toDo = dto.getToDo();
+        String password = dto.getPassword();
 
-        Schedule schedule = new Schedule(dto.getToDo(),dto.getPassword());
-        Author author = new Author(dto.getName(),dto.getEmail());
 
-        String name = author.getName();
-        String email = author.getEmail();
-        String toDo = schedule.getToDo();
-        String password = schedule.getPassword();
-
-        if(name == null | email == null || toDo == null || password == null){
-            throw new BadRequestException("작성자, 이메일, 할일, 비밀번호를 모두 입력 해 주세요");
-        }
-
-        return scheduleRepository.saveSchedule(schedule,author);
+        return scheduleRepository.saveSchedule(name,email,toDo,password );
     }
 
 
 
     @Override
-    public PageResponseDto<ScheduleResponseDto> findAllSchedule(Long id, String period, LocalDateTime startDate, LocalDateTime endDate, int size, int page) {
+    public PageResponseDto<ScheduleResponseDto> findAllSchedule(ScheduleRequestDto dto) {
+
+        Long id = dto.getId();
+        int page = dto.getPage();
+        int size = dto.getSize();
+        String period = dto.getPeriod();
+        LocalDateTime startDate = dto.getStartDate();
+        LocalDateTime endDate = dto.getEndDate();
 
         if(page<=0 || size<=0){
             throw new BadRequestException("페이지와 사이즈는 1 이상이어야 합니다");
