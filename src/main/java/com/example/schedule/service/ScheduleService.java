@@ -5,13 +5,11 @@ import com.example.schedule.dto.PageResponseDto;
 import com.example.schedule.dto.ScheduleRequestDto;
 import com.example.schedule.dto.ScheduleResponseDto;
 
-import java.time.LocalDateTime;
-
 public interface ScheduleService {
 
     ScheduleResponseDto saveSchedule(ScheduleRequestDto dto);
 
-    PageResponseDto<ScheduleResponseDto> findAllSchedule(Long id, String period, LocalDateTime startDate, LocalDateTime endDate, int size, int page);
+    PageResponseDto<ScheduleResponseDto> findAllSchedule(ScheduleRequestDto dto);
 
     ScheduleResponseDto findScheduleById(Long id);
 
