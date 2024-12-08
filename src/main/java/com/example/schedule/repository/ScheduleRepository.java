@@ -10,7 +10,7 @@ public interface ScheduleRepository {
 
     ScheduleResponseDto saveSchedule(String name, String email, String toDo, String password);
 
-    PageResponseDto<ScheduleResponseDto> findAllScheduleByAuthorId(Long id, String period, LocalDateTime startDate, LocalDateTime endDate, int size, int page);
+    PageResponseDto findAllScheduleByAuthorId(Long id, String period, LocalDateTime startDate, LocalDateTime endDate, int size, int page);
 
     ScheduleResponseDto findScheduleById(Long id);
 

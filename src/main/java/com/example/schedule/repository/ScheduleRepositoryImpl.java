@@ -73,7 +73,7 @@ public class ScheduleRepositoryImpl implements ScheduleRepository {
     }
 
     @Override
-    public PageResponseDto<ScheduleResponseDto> findAllScheduleByAuthorId(Long id, String period, LocalDateTime startDate, LocalDateTime endDate, int size, int page) {
+    public PageResponseDto findAllScheduleByAuthorId(Long id, String period, LocalDateTime startDate, LocalDateTime endDate, int size, int page) {
 
         // 작성자 및 일정 테이블을 조인하여 검색 ( 식별자, 수정일 통합 )
         StringBuilder sql = new StringBuilder("""
@@ -115,7 +115,7 @@ public class ScheduleRepositoryImpl implements ScheduleRepository {
             page = Math.max(totalPages, 1);
         }
 
-        return new PageResponseDto<>(schedules, page, size, totalPages, totalElements);
+        return new PageResponseDto(schedules, page, size, totalPages, totalElements);
     }
 
     // 조건에 따른 sql 쿼리문 추가

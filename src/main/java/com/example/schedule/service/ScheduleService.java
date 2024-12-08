@@ -9,7 +9,7 @@ public interface ScheduleService {
 
     ScheduleResponseDto saveSchedule(ScheduleRequestDto dto);
 
-    PageResponseDto<ScheduleResponseDto> findAllSchedule(ScheduleRequestDto dto);
+    PageResponseDto findAllSchedule(ScheduleRequestDto dto);
 
     ScheduleResponseDto findScheduleById(Long id);
 

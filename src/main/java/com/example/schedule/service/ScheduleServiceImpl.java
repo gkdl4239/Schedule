@@ -37,7 +37,7 @@ public class ScheduleServiceImpl implements ScheduleService {
 
 
     @Override
-    public PageResponseDto<ScheduleResponseDto> findAllSchedule(ScheduleRequestDto dto) {
+    public PageResponseDto findAllSchedule(ScheduleRequestDto dto) {
 
         Long id = dto.getId();
         int page = dto.getPage();
@@ -74,7 +74,7 @@ public class ScheduleServiceImpl implements ScheduleService {
             endDate= LocalDate.parse(end, formatter).atTime(LocalTime.MAX);
         }
 
-
+        // 기간 선택 시 로직
         if (!"custom".equals(period) && period != null) {
             LocalDateTime now = LocalDateTime.now();
             endDate = now;
@@ -86,10 +86,9 @@ public class ScheduleServiceImpl implements ScheduleService {
                 case "3months" -> startDate = now.minusMonths(3);
                 case "6months" -> startDate = now.minusMonths(6);
                 case "1year" -> startDate = now.minusYears(1);
-                default -> throw new IllegalArgumentException("Invalid period: " + period);
+                default -> throw new IllegalArgumentException("유효하지 않은 기간입니다 : " + period);
             }
         }
-
 
         return scheduleRepository.findAllScheduleByAuthorId(id, period, startDate, endDate, size, page);
     }
@@ -104,7 +103,7 @@ public class ScheduleServiceImpl implements ScheduleService {
     public ScheduleResponseDto updateToDoAndName(Long id, String name, String toDo, String password) {
 
         if (name == null && toDo == null) {
-            throw new BadRequestException("이름이나 할일을 적어도 1개 기입하세요");
+            throw new BadRequestException("수정할 이름 이나 할일을 적어도 1개 기입하세요");
         }
         scheduleRepository.updateToDoAndName(id, name, toDo, password);
         return scheduleRepository.findScheduleById(id);
