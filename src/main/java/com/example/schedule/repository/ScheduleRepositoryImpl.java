@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 @Repository
-public class ScheduleRepositoryImpl implements  ScheduleRepository {
+public class ScheduleRepositoryImpl implements ScheduleRepository {
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -37,19 +37,17 @@ public class ScheduleRepositoryImpl implements  ScheduleRepository {
 
         String checkAuthor = "SELECT id FROM author WHERE name = ? AND email = ?";
         Long authorId;
-        try{
-            authorId = jdbcTemplate.queryForObject(checkAuthor,Long.class,name,email);
-        }
-
-        catch(EmptyResultDataAccessException e){
+        try {
+            authorId = jdbcTemplate.queryForObject(checkAuthor, Long.class, name, email);
+        } catch (EmptyResultDataAccessException e) {
             SimpleJdbcInsert authorInsert = new SimpleJdbcInsert(jdbcTemplate)
                     .withTableName("author")
                     .usingGeneratedKeyColumns("id")
-                    .usingColumns("name","email");
+                    .usingColumns("name", "email");
 
             Map<String, Object> authorParams = new HashMap<>();
-            authorParams.put("name",name);
-            authorParams.put("email",email);
+            authorParams.put("name", name);
+            authorParams.put("email", email);
 
             Number generatedId = authorInsert.executeAndReturnKey(new MapSqlParameterSource(authorParams));
             authorId = generatedId.longValue();
@@ -58,7 +56,7 @@ public class ScheduleRepositoryImpl implements  ScheduleRepository {
         SimpleJdbcInsert jdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("schedule")
                 .usingGeneratedKeyColumns("id")
-                .usingColumns("toDo","password","author_id");
+                .usingColumns("toDo", "password", "author_id");
 
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("toDo", toDo);
@@ -85,12 +83,12 @@ public class ScheduleRepositoryImpl implements  ScheduleRepository {
         buildWhereClause(sql, params, id, startDate, endDate);
 
         StringBuilder countSql = new StringBuilder("""
-            SELECT COUNT(*)
-            FROM schedule AS s
-            JOIN author AS a ON s.author_id = a.id
-            """);
+                SELECT COUNT(*)
+                FROM schedule AS s
+                JOIN author AS a ON s.author_id = a.id
+                """);
 
-        if(sql.indexOf("WHERE") != -1) {
+        if (sql.indexOf("WHERE") != -1) {
             countSql.append(sql.substring(sql.indexOf("WHERE")));
         }
 
@@ -98,12 +96,10 @@ public class ScheduleRepositoryImpl implements  ScheduleRepository {
 
         sql.append("ORDER BY s.modifiedDate DESC LIMIT ? OFFSET ?");
         params.add(size);
-        params.add((page-1)*size);
+        params.add((page - 1) * size);
 
 
         List<ScheduleResponseDto> schedules = jdbcTemplate.query(sql.toString(), scheduleRowMapper(), params.toArray());
-
-
 
 
         int totalPages = (int) Math.ceil((double) totalElements / size);
@@ -112,12 +108,12 @@ public class ScheduleRepositoryImpl implements  ScheduleRepository {
             page = Math.max(totalPages, 1);
         }
 
-        return new PageResponseDto<>(schedules,page,size,totalPages,totalElements);
+        return new PageResponseDto<>(schedules, page, size, totalPages, totalElements);
     }
 
     private void buildWhereClause(StringBuilder sql, List<Object> params, Long id,
                                   LocalDateTime startDate, LocalDateTime endDate) {
-        if (id != null || endDate != null){
+        if (id != null || endDate != null) {
             sql.append("WHERE ");
         }
         if (id != null) {
@@ -126,7 +122,7 @@ public class ScheduleRepositoryImpl implements  ScheduleRepository {
         }
 
         if (startDate != null && endDate != null) {
-            if(id !=null){
+            if (id != null) {
                 sql.append("AND ");
             }
             sql.append("s.modifiedDate BETWEEN ? AND ? ");
@@ -155,9 +151,9 @@ public class ScheduleRepositoryImpl implements  ScheduleRepository {
 
         if (password.equals(searchPassword(id))) {
 
-            if(name != null){
+            if (name != null) {
                 int authorId = jdbcTemplate.queryForObject("SELECT author_id FROM schedule WHERE id = ?", new Object[]{id}, Integer.class);
-                jdbcTemplate.update("UPDATE author SET name =? WHERE id = ?",name,authorId);
+                jdbcTemplate.update("UPDATE author SET name =? WHERE id = ?", name, authorId);
             }
 
             if (toDo != null) {
@@ -179,7 +175,7 @@ public class ScheduleRepositoryImpl implements  ScheduleRepository {
         throw new BadRequestException("비밀번호가 올바르지 않습니다 !");
     }
 
-    private void isValidInTable(Long id){
+    private void isValidInTable(Long id) {
 
         Integer count = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM schedule WHERE id = ?", new Object[]{id}, Integer.class);
 
@@ -189,7 +185,7 @@ public class ScheduleRepositoryImpl implements  ScheduleRepository {
 
     }
 
-    private String searchPassword(Long id){
+    private String searchPassword(Long id) {
         return jdbcTemplate.queryForObject("SELECT password FROM schedule WHERE id = ?", new Object[]{id}, String.class);
     }
 

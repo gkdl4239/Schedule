@@ -12,11 +12,11 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 
 @Service
-public class ScheduleServiceImpl implements ScheduleService{
+public class ScheduleServiceImpl implements ScheduleService {
 
     private final ScheduleRepository scheduleRepository;
 
-    public ScheduleServiceImpl(ScheduleRepository scheduleRepository){
+    public ScheduleServiceImpl(ScheduleRepository scheduleRepository) {
         this.scheduleRepository = scheduleRepository;
     }
 
@@ -29,9 +29,8 @@ public class ScheduleServiceImpl implements ScheduleService{
         String password = dto.getPassword();
 
 
-        return scheduleRepository.saveSchedule(name,email,toDo,password );
+        return scheduleRepository.saveSchedule(name, email, toDo, password);
     }
-
 
 
     @Override
@@ -44,7 +43,7 @@ public class ScheduleServiceImpl implements ScheduleService{
         LocalDateTime startDate = dto.getStartDate();
         LocalDateTime endDate = dto.getEndDate();
 
-        if(page<=0 || size<=0){
+        if (page <= 0 || size <= 0) {
             throw new BadRequestException("페이지와 사이즈는 1 이상이어야 합니다");
         }
 
@@ -62,14 +61,14 @@ public class ScheduleServiceImpl implements ScheduleService{
                 case "1year" -> startDate = now.minusYears(1);
                 default -> throw new IllegalArgumentException("Invalid period: " + period);
             }
-        } else if (startDate != null && endDate != null){
+        } else if (startDate != null && endDate != null) {
             endDate = endDate.plusDays(1);
-        } else if (startDate != null){
+        } else if (startDate != null) {
             endDate = LocalDateTime.now().plusDays(1);
         }
 
 
-        return scheduleRepository.findAllScheduleByAuthorId(id,period,startDate,endDate, size, page);
+        return scheduleRepository.findAllScheduleByAuthorId(id, period, startDate, endDate, size, page);
     }
 
     @Override
@@ -81,7 +80,7 @@ public class ScheduleServiceImpl implements ScheduleService{
     @Override
     public ScheduleResponseDto updateToDoAndName(Long id, String name, String toDo, String password) {
 
-        if(name == null && toDo == null){
+        if (name == null && toDo == null) {
             throw new BadRequestException("이름이나 할일을 적어도 1개 기입하세요");
         }
         scheduleRepository.updateToDoAndName(id, name, toDo, password);

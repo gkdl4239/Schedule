@@ -18,15 +18,15 @@ public class ScheduleController {
 
     private final ScheduleService scheduleService;
 
-    public ScheduleController(ScheduleService scheduleService){
+    public ScheduleController(ScheduleService scheduleService) {
         this.scheduleService = scheduleService;
     }
 
 
     @PostMapping
-    public ResponseEntity<ScheduleResponseDto> createSchedule(@Valid @RequestBody ScheduleRequestDto dto){
+    public ResponseEntity<ScheduleResponseDto> createSchedule(@Valid @RequestBody ScheduleRequestDto dto) {
 
-        return new ResponseEntity<>(scheduleService.saveSchedule(dto),HttpStatus.CREATED);
+        return new ResponseEntity<>(scheduleService.saveSchedule(dto), HttpStatus.CREATED);
     }
 
     @GetMapping
@@ -34,7 +34,7 @@ public class ScheduleController {
             @ModelAttribute ScheduleRequestDto dto,
             @RequestParam String start,
             @RequestParam String end
-    )  {
+    ) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         LocalDateTime startDate = LocalDateTime.parse(start, formatter);
         LocalDateTime endDate = LocalDateTime.parse(end, formatter);
@@ -48,7 +48,7 @@ public class ScheduleController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ScheduleResponseDto> findScheduleById(@PathVariable Long id) {
-        return new ResponseEntity<>(scheduleService.findScheduleById(id),HttpStatus.OK);
+        return new ResponseEntity<>(scheduleService.findScheduleById(id), HttpStatus.OK);
     }
 
     @PatchMapping("/{id}")
@@ -56,14 +56,14 @@ public class ScheduleController {
             @PathVariable Long id,
             @RequestBody ScheduleRequestDto dto
     ) {
-        return new ResponseEntity<>(scheduleService.updateToDoAndName(id,dto.getName(),dto.getToDo(),dto.getPassword()),HttpStatus.OK);
+        return new ResponseEntity<>(scheduleService.updateToDoAndName(id, dto.getName(), dto.getToDo(), dto.getPassword()), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
     public void deleteSchedule(
             @PathVariable Long id,
             @RequestBody ScheduleRequestDto dto
-    ){
-        scheduleService.deleteSchedule(id,dto.getPassword());
+    ) {
+        scheduleService.deleteSchedule(id, dto.getPassword());
     }
 }

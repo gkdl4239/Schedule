@@ -4,7 +4,6 @@ import com.example.schedule.dto.PageResponseDto;
 import com.example.schedule.dto.ScheduleResponseDto;
 
 
-
 import java.time.LocalDateTime;
 
 public interface ScheduleRepository {

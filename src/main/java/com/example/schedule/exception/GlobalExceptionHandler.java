@@ -14,9 +14,9 @@ public class GlobalExceptionHandler {
 
     // 사용자 정의 예외
     @ExceptionHandler(CustomException.class)
-    public ResponseEntity<ErrorResponseDto> handleCustomException(CustomException e){
+    public ResponseEntity<ErrorResponseDto> handleCustomException(CustomException e) {
         ErrorResponseDto errorResponse = new ErrorResponseDto(
-                e.getMessage(),e.getStatus().value(),LocalDateTime.now()
+                e.getMessage(), e.getStatus().value(), LocalDateTime.now()
         );
 
         return new ResponseEntity<>(errorResponse, e.getStatus());
@@ -24,12 +24,12 @@ public class GlobalExceptionHandler {
 
     // 나머지 일반적인 예외
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponseDto> handleException(Exception e){
+    public ResponseEntity<ErrorResponseDto> handleException(Exception e) {
         ErrorResponseDto errorResponse = new ErrorResponseDto(
                 "서버 오류 ! ",
                 500,
                 LocalDateTime.now()
         );
-        return new ResponseEntity<>(errorResponse,HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
