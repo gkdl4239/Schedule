@@ -35,7 +35,6 @@ public class ScheduleServiceImpl implements ScheduleService {
         return scheduleRepository.saveSchedule(name, email, toDo, password);
     }
 
-
     @Override
     public PageResponseDto findAllSchedule(ScheduleRequestDto dto) {
 
@@ -86,7 +85,7 @@ public class ScheduleServiceImpl implements ScheduleService {
                 case "3months" -> startDate = now.minusMonths(3);
                 case "6months" -> startDate = now.minusMonths(6);
                 case "1year" -> startDate = now.minusYears(1);
-                default -> throw new IllegalArgumentException("유효하지 않은 기간입니다 : " + period);
+                default -> throw new BadRequestException("유효하지 않은 기간입니다 : " + period);
             }
         }
 
