@@ -24,8 +24,8 @@ public class ScheduleRequestDto {
     @NotNull(message = "비밀번호를 입력하세요")
     private String password;
     private String period;
-    private final int page = 1;
-    private final int size = 5;
+    private int page = 1;
+    private int size = 5;
     private String startDate;
     private String endDate;
 
